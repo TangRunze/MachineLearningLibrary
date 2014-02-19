@@ -13,10 +13,6 @@ public class MajorityClassifier extends Predictor implements Serializable {
 	public MajorityClassifier(List<Instance> instances) {
 		this._instances = instances;
 	}
-
-//	public Label getLabel() {
-//		return this._label;
-//	}
 	
 	@Override
 	public void train(List<Instance> instances) {

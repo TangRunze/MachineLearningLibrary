@@ -13,10 +13,6 @@ public class EvenOddClassifier extends Predictor implements Serializable {
 	public EvenOddClassifier(List<Instance> instances) {
 		this._instances = instances;
 	}
-
-//	public Label getLabel() {
-//		return this._label;
-//	}
 	
 	@Override
 	public void train(List<Instance> instances) {

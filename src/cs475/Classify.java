@@ -16,6 +16,9 @@ import org.apache.commons.cli.OptionBuilder;
 
 public class Classify {
 	static public LinkedList<Option> options = new LinkedList<Option>();
+	private static double gd_eta;
+	private static int gd_iterations;
+	private static int num_features_to_select;
 	
 	public static void main(String[] args) throws IOException {
 		// Parse the command line.
@@ -28,6 +31,19 @@ public class Classify {
 		String predictions_file = CommandLineUtilities.getOptionValue("predictions_file");
 		String algorithm = CommandLineUtilities.getOptionValue("algorithm");
 		String model_file = CommandLineUtilities.getOptionValue("model_file");
+		
+		gd_eta = 0.01;
+		if (CommandLineUtilities.hasArg("gd_eta")) {
+			gd_eta = CommandLineUtilities.getOptionValueAsFloat("gd_eta");
+		}
+		gd_iterations = 20;
+		if (CommandLineUtilities.hasArg("gd_iterations")) {
+			gd_iterations = CommandLineUtilities.getOptionValueAsInt("gd_iterations");
+		}
+		num_features_to_select = -1;
+		if (CommandLineUtilities.hasArg("num_features_to_select")) {
+			num_features_to_select = CommandLineUtilities.getOptionValueAsInt("num_features_to_select");
+		}
 		
 		if (mode.equalsIgnoreCase("train")) {
 			if (data == null || algorithm == null || model_file == null) {
@@ -70,14 +86,25 @@ public class Classify {
 			predictor = new MajorityClassifier(instances);
 		} else if (algorithm.equalsIgnoreCase("even_odd")) {
 			predictor = new EvenOddClassifier(instances);
+		} else if (algorithm.equalsIgnoreCase("logistic_regression")) {
+			predictor = new LogisticRegressionClassifier(instances, gd_eta, gd_iterations, num_features_to_select);
 		} else {
 			System.out.println("Algorithm not found.");
 		}
+		
+		List<Instance> instances_origin = instances;
+		
+		// Run feature selection.
+		if (num_features_to_select > -1) {
+			FeatureSelection featureselection = new FeatureSelection(instances);
+			instances = featureselection.select(num_features_to_select);
+		}
+		
 		// Train the model using "algorithm" on "data"
 		predictor.train(instances);
 		// TODO Evaluate the model
-		AccuracyEvaluator accuracyevaluator = new AccuracyEvaluator(instances, predictor);
-		double accuracy = accuracyevaluator.evaluate(instances, predictor);
+		AccuracyEvaluator accuracyevaluator = new AccuracyEvaluator(instances_origin, predictor);
+		double accuracy = accuracyevaluator.evaluate(instances_origin, predictor);
 		System.out.println("The accuracy of the training data is: " + Double.toString(accuracy));
 		return predictor;
 	}
@@ -147,6 +174,10 @@ public class Classify {
 		registerOption("predictions_file", "String", true, "The predictions file to create.");
 		registerOption("algorithm", "String", true, "The name of the algorithm for training.");
 		registerOption("model_file", "String", true, "The name of the model file to create/load.");
+		
+		registerOption("gd_eta", "int", true, "The step size parameter for GD.");
+		registerOption("gd_iterations", "int", true, "The number of GD iterations.");
+		registerOption("num_features_to_select", "int", true, "The number of features to select.");
 		
 		// Other options will be added here.
 	}
