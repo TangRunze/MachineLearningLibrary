@@ -21,6 +21,7 @@ public class Classify {
 	private static int num_features_to_select;
 	private static double online_learning_rate;
 	private static int online_training_iterations;
+	private static int polynomial_kernel_exponent;
 	
 	public static void main(String[] args) throws IOException {
 		// Parse the command line.
@@ -54,6 +55,10 @@ public class Classify {
 		online_training_iterations = 5;
 		if (CommandLineUtilities.hasArg("online_training_iterations")) {
 			online_training_iterations = CommandLineUtilities.getOptionValueAsInt("online_training_iterations");
+		}
+		polynomial_kernel_exponent = 2;
+		if (CommandLineUtilities.hasArg("polynomial_kernel_exponent")) {
+			polynomial_kernel_exponent = CommandLineUtilities.getOptionValueAsInt("polynomial_kernel_exponent");
 		}
 		
 		if (mode.equalsIgnoreCase("train")) {
@@ -101,6 +106,10 @@ public class Classify {
 			predictor = new LogisticRegressionClassifier(instances, gd_eta, gd_iterations, num_features_to_select);
 		} else if (algorithm.equalsIgnoreCase("margin_perceptron")) {
 			predictor = new MarginPerceptronClassifier(instances, online_learning_rate, online_training_iterations);
+		} else if (algorithm.equalsIgnoreCase("perceptron_linear_kernel")) {
+			predictor = new MarginDualPerceptronClassifier(instances, "linear", polynomial_kernel_exponent, online_training_iterations);
+		} else if (algorithm.equalsIgnoreCase("perceptron_polynomial_kernel")) {
+			predictor = new MarginDualPerceptronClassifier(instances, "polynomial", polynomial_kernel_exponent, online_training_iterations);
 		} else {
 			System.out.println("Algorithm not found.");
 		}
