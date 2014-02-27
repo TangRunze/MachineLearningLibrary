@@ -19,6 +19,8 @@ public class Classify {
 	private static double gd_eta;
 	private static int gd_iterations;
 	private static int num_features_to_select;
+	private static double online_learning_rate;
+	private static int online_training_iterations;
 	
 	public static void main(String[] args) throws IOException {
 		// Parse the command line.
@@ -43,6 +45,15 @@ public class Classify {
 		num_features_to_select = -1;
 		if (CommandLineUtilities.hasArg("num_features_to_select")) {
 			num_features_to_select = CommandLineUtilities.getOptionValueAsInt("num_features_to_select");
+		}
+		
+		online_learning_rate = 1.0;
+		if (CommandLineUtilities.hasArg("online_learning_rate")) {
+			online_learning_rate = CommandLineUtilities.getOptionValueAsFloat("online_learning_rate");
+		}
+		online_training_iterations = 5;
+		if (CommandLineUtilities.hasArg("online_training_iterations")) {
+			online_training_iterations = CommandLineUtilities.getOptionValueAsInt("online_training_iterations");
 		}
 		
 		if (mode.equalsIgnoreCase("train")) {
@@ -88,6 +99,8 @@ public class Classify {
 			predictor = new EvenOddClassifier(instances);
 		} else if (algorithm.equalsIgnoreCase("logistic_regression")) {
 			predictor = new LogisticRegressionClassifier(instances, gd_eta, gd_iterations, num_features_to_select);
+		} else if (algorithm.equalsIgnoreCase("margin_perceptron")) {
+			predictor = new MarginPerceptronClassifier(instances, online_learning_rate, online_training_iterations);
 		} else {
 			System.out.println("Algorithm not found.");
 		}
@@ -179,6 +192,8 @@ public class Classify {
 		registerOption("gd_iterations", "int", true, "The number of GD iterations.");
 		registerOption("num_features_to_select", "int", true, "The number of features to select.");
 		
+		registerOption("online_learning_rate", "double", true, "The learning rate for perceptron.");
+		registerOption("online_training_iterations", "int", true, "The number of training iterations for online methods.");
 		// Other options will be added here.
 	}
 }
