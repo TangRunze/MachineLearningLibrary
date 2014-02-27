@@ -10,8 +10,7 @@ public class MarginPerceptronClassifier extends Predictor implements Serializabl
 	List<Instance> _instances;
 	double _online_learning_rate;
 	int _online_training_iterations;
-	double[] _w;
-	int _length_features;
+	HashMap<Integer, Double> _w = new HashMap<Integer, Double>();
 	
 	public MarginPerceptronClassifier(List<Instance> instances, double online_learning_rate, int online_training_iterations) {
 		this._instances = instances;
@@ -21,17 +20,8 @@ public class MarginPerceptronClassifier extends Predictor implements Serializabl
 
 	@Override
 	public void train(List<Instance> instances) {
-		int length_features = 0;
 		
-		for (Instance instance : instances) {
-			int tmpID = instance.getFeatureVector().getMaxID();
-			if (tmpID > length_features) {
-				length_features = tmpID;
-			}
-		}
-		this._length_features = length_features;
-		
-		double[] w = new double[length_features];
+		HashMap<Integer, Double> w = new HashMap<Integer, Double>();
 		
 		for (int iter = 1; iter <= this._online_training_iterations; iter++) {
 			for (Instance instance : instances) {
@@ -44,11 +34,17 @@ public class MarginPerceptronClassifier extends Predictor implements Serializabl
 				tmpmap = instance.getFeatureVector().getMap();
 				double wx = 0;
 				for (int key : tmpmap.keySet()) {
-					wx += tmpmap.get(key)*w[key-1];
+					if (w.containsKey(key)) {
+						wx += tmpmap.get(key)*w.get(key);
+					}
 				}
 				if (yi*wx < 1) {
 					for (int key : tmpmap.keySet()) {
-						w[key-1] += this._online_learning_rate*yi*tmpmap.get(key);
+						double wi = this._online_learning_rate*yi*tmpmap.get(key);
+						if (w.containsKey(key)) {
+							wi += w.get(key);
+						}
+						w.put(key, wi);
 					}				
 				}
 			}
@@ -64,8 +60,8 @@ public class MarginPerceptronClassifier extends Predictor implements Serializabl
 		tmpmap = instance.getFeatureVector().getMap();
 		double wx = 0;
 		for (int key : tmpmap.keySet()) {
-			if (key <= this._length_features) {
-				wx += tmpmap.get(key)*this._w[key-1];
+			if (this._w.containsKey(key)) {
+				wx += tmpmap.get(key)*this._w.get(key);
 			}
 		}
 

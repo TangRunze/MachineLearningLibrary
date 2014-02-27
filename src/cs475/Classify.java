@@ -110,6 +110,8 @@ public class Classify {
 			predictor = new MarginDualPerceptronClassifier(instances, "linear", polynomial_kernel_exponent, online_training_iterations);
 		} else if (algorithm.equalsIgnoreCase("perceptron_polynomial_kernel")) {
 			predictor = new MarginDualPerceptronClassifier(instances, "polynomial", polynomial_kernel_exponent, online_training_iterations);
+		} else if (algorithm.equalsIgnoreCase("mira")) {
+			predictor = new MIRA(instances, online_training_iterations);
 		} else {
 			System.out.println("Algorithm not found.");
 		}
