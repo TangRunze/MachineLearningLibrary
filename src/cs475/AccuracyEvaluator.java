@@ -23,12 +23,18 @@ public class AccuracyEvaluator extends Evaluator implements Serializable {
 		for (Instance instance : instances) {
 			labelPredict = predictor.predict(instance);
 			labelOrigin = instance.getLabel();
-			n++;
-			if (labelOrigin.toString().equalsIgnoreCase(labelPredict.toString())) {
-				// If the predicted label equals the original label, then count plus 1.
-				correct += 1;
+			if (labelOrigin != null) {
+				n++;
+				if (labelOrigin.toString().equalsIgnoreCase(labelPredict.toString())) {
+					// If the predicted label equals the original label, then count plus 1.
+					correct += 1;
+				}
 			}
 		}
-		return correct*1.0/n;
+		if (n == 0) {
+			return 0;
+		} else {
+			return correct*1.0/n;
+		}
 	}
 }

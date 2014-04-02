@@ -22,6 +22,8 @@ public class Classify {
 	private static double online_learning_rate;
 	private static int online_training_iterations;
 	private static int polynomial_kernel_exponent;
+	private static int clustering_training_iterations;
+	private static double cluster_lambda;
 	
 	public static void main(String[] args) throws IOException {
 		// Parse the command line.
@@ -59,6 +61,15 @@ public class Classify {
 		polynomial_kernel_exponent = 2;
 		if (CommandLineUtilities.hasArg("polynomial_kernel_exponent")) {
 			polynomial_kernel_exponent = CommandLineUtilities.getOptionValueAsInt("polynomial_kernel_exponent");
+		}
+		
+		clustering_training_iterations = 10;
+		if (CommandLineUtilities.hasArg("clustering_training_iterations")) {
+			clustering_training_iterations = CommandLineUtilities.getOptionValueAsInt("clustering_training_iterations");
+		}
+		cluster_lambda = 0;
+		if (CommandLineUtilities.hasArg("cluster_lambda")) {
+			cluster_lambda = CommandLineUtilities.getOptionValueAsFloat("cluster_lambda");
 		}
 		
 		if (mode.equalsIgnoreCase("train")) {
@@ -112,6 +123,8 @@ public class Classify {
 			predictor = new MarginDualPerceptronClassifier(instances, "polynomial", polynomial_kernel_exponent, online_training_iterations);
 		} else if (algorithm.equalsIgnoreCase("mira")) {
 			predictor = new MIRA(instances, online_training_iterations);
+		} else if (algorithm.equalsIgnoreCase("lambda_means")) {
+			predictor = new LambdaMeansPredictor(instances, clustering_training_iterations, cluster_lambda);
 		} else {
 			System.out.println("Algorithm not found.");
 		}
@@ -127,9 +140,9 @@ public class Classify {
 		// Train the model using "algorithm" on "data"
 		predictor.train(instances);
 		// TODO Evaluate the model
-		AccuracyEvaluator accuracyevaluator = new AccuracyEvaluator(instances_origin, predictor);
-		double accuracy = accuracyevaluator.evaluate(instances_origin, predictor);
-		System.out.println("The accuracy of the training data is: " + Double.toString(accuracy));
+		//AccuracyEvaluator accuracyevaluator = new AccuracyEvaluator(instances_origin, predictor);
+		//double accuracy = accuracyevaluator.evaluate(instances_origin, predictor);
+		//System.out.println("The accuracy of the training data is: " + Double.toString(accuracy));
 		return predictor;
 	}
 
@@ -137,9 +150,9 @@ public class Classify {
 			List<Instance> instances, String predictions_file) throws IOException {
 		PredictionsWriter writer = new PredictionsWriter(predictions_file);
 		// TODO Evaluate the model if labels are available. 
-		AccuracyEvaluator accuracyevaluator = new AccuracyEvaluator(instances, predictor);
-		double accuracy = accuracyevaluator.evaluate(instances, predictor);
-		System.out.println("The accuracy of the test data is: " + Double.toString(accuracy));
+		//AccuracyEvaluator accuracyevaluator = new AccuracyEvaluator(instances, predictor);
+		//double accuracy = accuracyevaluator.evaluate(instances, predictor);
+		//System.out.println("The accuracy of the test data is: " + Double.toString(accuracy));
 		
 		for (Instance instance : instances) {
 			Label label = predictor.predict(instance);
@@ -205,6 +218,9 @@ public class Classify {
 		
 		registerOption("online_learning_rate", "double", true, "The learning rate for perceptron.");
 		registerOption("online_training_iterations", "int", true, "The number of training iterations for online methods.");
+		
+		registerOption("clustering_training_iterations", "int", true, "The number of clustering iterations.");
+		registerOption("cluster_lambda", "double", true, "The value of lambda in lambda-means.");
 		// Other options will be added here.
 	}
 }
