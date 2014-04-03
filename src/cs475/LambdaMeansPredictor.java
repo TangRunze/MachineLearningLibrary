@@ -52,7 +52,7 @@ public class LambdaMeansPredictor extends Predictor implements Serializable {
 					}
 					tmp1 += tmp*tmp;
 				}
-				this._cluster_lambda += Math.sqrt(tmp1);
+				this._cluster_lambda += tmp1;
 			}
 			this._cluster_lambda = this._cluster_lambda/N;
 		} else {
@@ -100,7 +100,7 @@ public class LambdaMeansPredictor extends Predictor implements Serializable {
 						k = j;
 					}
 				}
-				min = Math.sqrt(min);
+				// min = Math.sqrt(min);
 				if (min <= this._cluster_lambda) {
 					r[i] = k;
 				} else {

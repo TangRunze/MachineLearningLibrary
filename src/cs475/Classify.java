@@ -24,6 +24,7 @@ public class Classify {
 	private static int polynomial_kernel_exponent;
 	private static int clustering_training_iterations;
 	private static double cluster_lambda;
+	private static int num_clusters;
 	
 	public static void main(String[] args) throws IOException {
 		// Parse the command line.
@@ -70,6 +71,10 @@ public class Classify {
 		cluster_lambda = 0;
 		if (CommandLineUtilities.hasArg("cluster_lambda")) {
 			cluster_lambda = CommandLineUtilities.getOptionValueAsFloat("cluster_lambda");
+		}
+		num_clusters = 3;
+		if (CommandLineUtilities.hasArg("num_clusters")) {
+			num_clusters = CommandLineUtilities.getOptionValueAsInt("num_clusters");
 		}
 		
 		if (mode.equalsIgnoreCase("train")) {
@@ -125,6 +130,8 @@ public class Classify {
 			predictor = new MIRA(instances, online_training_iterations);
 		} else if (algorithm.equalsIgnoreCase("lambda_means")) {
 			predictor = new LambdaMeansPredictor(instances, clustering_training_iterations, cluster_lambda);
+		} else if (algorithm.equalsIgnoreCase("ska")) {
+			predictor = new StochasticKMeansPredictor(instances, clustering_training_iterations, num_clusters);			
 		} else {
 			System.out.println("Algorithm not found.");
 		}
@@ -218,9 +225,11 @@ public class Classify {
 		
 		registerOption("online_learning_rate", "double", true, "The learning rate for perceptron.");
 		registerOption("online_training_iterations", "int", true, "The number of training iterations for online methods.");
+		registerOption("polynomial_kernel_exponent", "int", true, "The exponent of the polynomial kernel.");
 		
 		registerOption("clustering_training_iterations", "int", true, "The number of clustering iterations.");
 		registerOption("cluster_lambda", "double", true, "The value of lambda in lambda-means.");
+		registerOption("num_clusters", "int", true, "The number of clusters.");
 		// Other options will be added here.
 	}
 }
